@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { FormEl, Label, Input, Button } from "./Form.styled";
 import { useDispatch, useSelector } from 'react-redux';
-import { addContact } from 'redux/contactsSlice';
+import { addContact } from 'redux/operations';
 import Notiflix from 'notiflix';
+import { selectContacts } from 'redux/selectors';
 
 
 function Form() {
   const dispatch = useDispatch();
-  const contacts = useSelector(state => state.contacts)
+  const contacts = useSelector(selectContacts);
 
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
@@ -23,35 +24,35 @@ function Form() {
 
   const handleSubmit = e => {
     e.preventDefault();
-
-    if (name.trim() === '' || number.trim() === '') {
-      return
-    }
+const contact = {
+  name: name,
+  number: number,
+};
 
     const isContactExist = contacts.find(
-      contact => contact.name.toLowerCase() === name.toLowerCase()
+      ({ name }) => name.toLowerCase() === contact.name.toLowerCase()
     ); 
     if (isContactExist) {
       Notiflix.Report.warning(
         'Alert',
-        `Contact with name ${name} already exists!`,
+        `Contact with name ${contact.name} already exists!`,
         'Ok'
       );
       return;
     };
     const isNumberExist = contacts.find(
-      contact => contact.number.replace(/\D/g, '') === number.replace(/\D/g, '')
+      ({ number }) => number.replace(/\D/g, '') === contact.number.replace(/\D/g, '')
     );
     if (isNumberExist) {
       Notiflix.Report.warning(
         'Alert',
-        `Number with name ${number} already exists!`,
+        `Number with name ${contact.number} already exists!`,
         'Ok'
       );
       return;
     }
 
-    dispatch(addContact(name, number));
+    dispatch(addContact(contact));
     setName('');
     setNumber('');
   }; 

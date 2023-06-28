@@ -9,7 +9,8 @@ font-weight: 600;
 
 export const ItemContainer = styled.div`
 display: flex;
-
+justify-content: space-between;
+width: 500px;
 
 & > *:not(:last-child) {
   margin-bottom: 30px;

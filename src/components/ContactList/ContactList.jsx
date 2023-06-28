@@ -1,26 +1,36 @@
 import Contact from 'components/Contact/Contact';
 import { List } from './ContactList.styled';
-import { useSelector } from 'react-redux';
-import { getContacts, getFilter } from 'redux/selectors';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { selectFilteredContacts, selectError, selectIsLoading } from 'redux/selectors';
+import { Loader } from '../Loader/Loader';
+import { fetchContacts } from 'redux/operations';
 
-const getFilteredContacts = (contacts, filter) => {
-  const normalizedFilter = filter.toLowerCase();
-  return contacts.filter(contact => contact.name.toLowerCase().includes(normalizedFilter));
-};
 
 function ContactList () {
-  const contacts = useSelector(getContacts);
-  const filter = useSelector(getFilter);
-  const filteredContacts = getFilteredContacts(contacts, filter)
+  const filteredContacts = useSelector(selectFilteredContacts);
+  const error = useSelector(selectError);
+  const isLoading = useSelector(selectIsLoading);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
   return (
     <List>
-      {filteredContacts.map(({ id, name, number}) =>  (        
+      {isLoading && !error? (
+        <Loader/>
+      ): filteredContacts.length === 0 && !error ? (
+        <p>The Phonebook is empty. Add your first contact.</p>
+      ) : (filteredContacts.map(({ id, name, number}) =>  (        
         <Contact 
         key={id} 
         contact={{ name, id, number}}/>
         )
-      )}
+      ))
+      }
     </List>
   );
 }
